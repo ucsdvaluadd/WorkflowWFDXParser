@@ -28,7 +28,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.sdk.customtasks.scriptreader.html.HtmlGenerator;
+import com.sdk.compare.gson.GSONCompareMain;
 
 public class ParseWFDXFile {
 
@@ -37,11 +37,16 @@ public class ParseWFDXFile {
 	// static File file_ScriptNew;
 	static String sourceDir;
 	static String outputFile;
+	
 
 	public static void main(String args[]) {
 
+		GSONCompareMain gsonCompareMain = new GSONCompareMain();
+		
 		sourceDir = args[0];
+		//sourceDir = "E:\\TestingCustomTaskFolder";
 		outputFile = args[1];
+		//outputFile="Output.html";
 
 		// String directoryOfWorkflows = checkOS(sourceDir);
 
@@ -80,6 +85,7 @@ public class ParseWFDXFile {
 	 */
 
 	public static void parseWFDXFile(String directoryOfWorkflows, String outputFile) {
+		GSONCompareMain gsonCompareMain = new GSONCompareMain();
 		String executionScriptTag = null;
 		String destOfScriptFiles = null;
 		String task_data_tag = null;
@@ -127,18 +133,24 @@ public class ParseWFDXFile {
 					if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 						Element eElement = (Element) nNode; //
 						String typeTag = eElement.getElementsByTagName("type").item(0).getTextContent();
-						System.out.println("Data : " + typeTag);
+		//				System.out.println("Data : " + typeTag);
 						if (typeTag.equalsIgnoreCase("workflows")) {
 							String featureAssetEntryTag = eElement.getElementsByTagName("featureAssetEntry").item(0)
 									.getTextContent();
-							System.out.println("workflow featureAssetEntry : " + featureAssetEntryTag);
+		//					System.out.println("workflow featureAssetEntry : " + featureAssetEntryTag);
 							JSONObject obj_featureAssetEntryTag, obj_returnedString;
 							try {
 								obj_featureAssetEntryTag = new JSONObject(featureAssetEntryTag);
 								task_data_tag = obj_featureAssetEntryTag.getString("data");
-								System.out.println("Workflow data is :" + task_data_tag);
+		//						System.out.println("Workflow data is :" + task_data_tag);
 								String returned_string = new String(Base64.decodeBase64(task_data_tag.getBytes()));
-								System.out.println("Returned String Workflow data is : " + returned_string);
+		//						System.out.println("Returned String Workflow data is : " + returned_string);
+								try {
+									gsonCompareMain.readcustomActionDefinition(returned_string);
+								} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
 								obj_returnedString = new JSONObject(returned_string);
 							} catch (JSONException e1) {
 								e1.printStackTrace();
@@ -148,7 +160,7 @@ public class ParseWFDXFile {
 						if (typeTag.equals(custom_tag)) {
 							String featureAssetEntryTag = eElement.getElementsByTagName("featureAssetEntry").item(0)
 									.getTextContent();
-							System.out.println("featureAssetEntry : " + featureAssetEntryTag);
+		//					System.out.println("featureAssetEntry : " + featureAssetEntryTag);
 
 							// Parsing the JSON OBJECT feature_asset_entry for
 							// script
@@ -156,9 +168,10 @@ public class ParseWFDXFile {
 							try {
 								obj_featureAssetEntryTag = new JSONObject(featureAssetEntryTag);
 								task_data_tag = obj_featureAssetEntryTag.getString("taskData");
-								System.out.println("taskData is :" + task_data_tag);
+	//							System.out.println("taskData is :" + task_data_tag);
 								String returned_string = new String(Base64.decodeBase64(task_data_tag.getBytes()));
-								System.out.println("Returned String is : " + returned_string);
+	//							System.out.println("Returned String is : " + returned_string);
+								
 								obj_returnedString = new JSONObject(returned_string);
 								executionScriptTag = obj_returnedString.getString("executionScript");
 								// System.out.println("executionScript is : " +
@@ -179,13 +192,20 @@ public class ParseWFDXFile {
 
 			// getAllClassNamesUsedInTheFile(destOfScriptFiles,dirOfScriptFiles);
 		}
-
-		try {
+		
+		
+			/**
+			 * 
+			 *  Blocked here to write in output files because of testing purpose
+			 */
+		
+		
+		/*try {
 			FileUtils.createOutputFile(outputFile, HtmlGenerator.generateHTMLOutput(scriptHashMap, "", ""));
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}
+		}*/
 		/*
 		 * if (osName.contains("Windows")) { destOfScriptFiles =
 		 * dirOfScriptFiles + "\\"+outputFile; System.out.println(
@@ -301,5 +321,4 @@ public class ParseWFDXFile {
 		}
 
 	}
-
 }
